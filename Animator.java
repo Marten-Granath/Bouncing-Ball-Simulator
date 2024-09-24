@@ -11,6 +11,7 @@ import java.awt.geom.Ellipse2D;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.util.Random;
 
 import bouncing_balls.Model.Ball;
 
@@ -52,6 +53,8 @@ public final class Animator extends JPanel implements ActionListener {
 	 */
 	private double deltaT;
 
+	//private Random random = new Random();
+
 	public void start() {
 		timer.start();
 	}
@@ -64,17 +67,26 @@ public final class Animator extends JPanel implements ActionListener {
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		// clear the canvas
-		g2.setColor(Color.WHITE);
+		g2.setColor(Color.BLACK);
 		g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+
 		// draw balls
-		g2.setColor(Color.RED);
+		//g2.setColor(Color.YELLOW);
 		for (Ball b : model.balls) {
 			double x = b.x - b.radius;
 			double y = b.y + b.radius;
+
+			g2.setColor(Color.BLACK);
 			// paint balls (y-coordinates are inverted)
 			Ellipse2D.Double e = new Ellipse2D.Double(x * pixelsPerMeter, this.getHeight() - (y * pixelsPerMeter),
 					b.radius * 2 * pixelsPerMeter, b.radius * 2 * pixelsPerMeter);
 			g2.fill(e);
+
+			//g2.setColor(neonColors[randomIndex]);
+			g2.setColor(b.color);
+			g2.setStroke(new BasicStroke(5));
+
+			g2.draw(e);
 		}
 		Toolkit.getDefaultToolkit().sync();
 	}
