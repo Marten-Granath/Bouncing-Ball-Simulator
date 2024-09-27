@@ -85,37 +85,6 @@ class Model {
 						// apply new velocity
 						b.vx = calculateNewVelocity(b, o)[0];
 						o.vx = calculateNewVelocity(b, o)[1];
-						System.out.println(b.vx);
-						System.out.println(o.vx);
-
-						/*
-						if (b.kx-o.kx < 0){
-							//b.vx = -sqrt(abs(2 * (b.kx - o.kx)) / b.mass);
-						}
-						else if (b.kx-o.kx >= 0) {
-							//b.vx = sqrt(abs(2 * (b.kx - o.kx)) / b.mass);
-						}
-						if (o.kx-b.kx < 0){
-							//o.vx = -sqrt(abs(2*(o.kx-b.kx))/o.mass);
-						}
-						else if (o.kx-b.kx >= 0) {
-							//o.vx = sqrt(abs(2*(o.kx-b.kx))/o.mass);
-						}
-
-						System.out.println(b.vx);
-						System.out.println(o.vx);
-						System.out.println(o.vx);
-						double tempEtot = (b.mass *pow(b.vx,2)+o.mass *pow(o.vx,2))/2;
-
-
-						double bm = b.mx;
-						double om = o.mx;
-						b.mx = om;
-						o.mx = bm;
-						o.kx = 0.5 * o.mass * Math.pow(o.vx, 2); // Kinetic energy along x-axis
-						b.kx = 0.5 * b.mass * Math.pow(b.vx, 2); // Kinetic energy along x-axis
-						System.out.println(tempEtot == (b.mass *pow(b.vx,2)+o.mass *pow(o.vx,2))/2);
-						*/
 
 						collisionOccured = true;
 						showBackgroundImage = true;
@@ -167,8 +136,6 @@ class Model {
 		double newVelocityB2;
 		newVelocityB1 = (b1.mass*b1.vx+b2.mass*b2.vx-b2.mass*b1.vx+b2.mass*b2.vx) /(b1.mass+b2.mass);
 		newVelocityB2 = b1.vx-b2.vx+newVelocityB1;
-		//newVelocityB1 = (b1.mass*b2.vx + b2.mass*b2.vx + b2.mass*b1.vx - b1.mass*b1.vx)/(2*b2.mass);
-		//newVelocityB2 = b2.vx-newVelocityB1+b1.vx;
 		double[] newList = {newVelocityB1, newVelocityB2};
 		return newList;
 	}
@@ -187,15 +154,11 @@ class Model {
 			this.radius = r;
 			this.color = color;
 			this.mass = density * PI * Math.pow(r, 2);
-			this.mx = mass * vx; // Momentum along x-axis
-			this.my = mass * vy; // Momentum along y-axis
-			this.kx = 0.5 * mass * Math.pow(vx, 2); // Kinetic energy along x-axis
-			this.ky = 0.5 * mass * Math.pow(vy, 2); // Kinetic energy along y-axis
 		}
 
 		/**
 		 * Position, speed, radius and mass of the ball.
 		 */
-		double x, y, vx, vy, radius, mass, mx, my, kx, ky;
+		double x, y, vx, vy, radius, mass;
 	}
 }
