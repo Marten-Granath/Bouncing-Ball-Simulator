@@ -3,8 +3,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
-
 import static java.lang.Math.*;
+
 /**
  * The physics model.
  * 
@@ -15,14 +15,14 @@ import static java.lang.Math.*;
  * @author Simon Robillard
  *
  */
+
 class Model {
 
 	double areaWidth, areaHeight;
 	double gravity = -9.81;
-
 	Ball [] balls;
-	Random random = new Random();
 
+	Random random = new Random();
 
 	//Array of neon colors
 	private Color[] neonColors = {
@@ -74,8 +74,7 @@ class Model {
 			for (Ball o : balls) {
 				if (b != o) { // Cannot collide with itself
 					if (o.x + o.radius > b.x - b.radius && o.x - o.radius < b.x + b.radius) { // Collision with other ball
-						System.out.println("Collision");
-						// move balls to each others edge if overlap occur
+						// handle overlap
 						if(b.x<o.x){
 							b.x = o.x - o.radius - b.radius;
 						}
@@ -102,20 +101,19 @@ class Model {
 
 			// detect collision with the border
 			if (b.x < b.radius || b.x > areaWidth - b.radius) {
-				b.vx *= -1; // change direction of ball
-				b.mx *= -1;
+				b.vx *= -1; 
 				collisionOccured = true;
 			}
-
 			if (b.y < b.radius || b.y > areaHeight - b.radius) {
-				if (b.y < b.radius) { //won't get stuck under border
+				// unstick from border below
+				if (b.y < b.radius) { 
 					b.y = b.radius;
 				}
-				if (b.y > areaHeight - b.radius) { //won't get stuck above border
+				// unstick from border above
+				if (b.y > areaHeight - b.radius) { 
 					b.y = areaHeight - b.radius;
 				}
 					b.vy *= -1;
-					b.my *= -1;
 					collisionOccured = true;
 			};
 			
