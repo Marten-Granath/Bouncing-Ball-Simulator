@@ -44,8 +44,8 @@ class Model {
         // Initialize the model with a few balls
         balls = new Ball[2];
 
-        balls[0] = new Ball(3.5, 0, 0, -2, 0.4, getRandomColor(null));
-        balls[1] = new Ball(3.5, 2, 0.5, 0.5, 0.2, getRandomColor(null));
+        balls[0] = new Ball(3.5, 3, 2, -2, 0.25, getRandomColor(null));
+        balls[1] = new Ball(1, 2, 3, 0.5, 0.2, getRandomColor(null));
     }
 
     void step(double deltaT) {
@@ -62,13 +62,12 @@ class Model {
                     if (distance < b1.radius + b2.radius) { // tells if there is an overlap
                         // Adjust positions to prevent overlap
                         double overlap = (b1.radius + b2.radius - distance) / 2; // overlap per ball
-						double xAdjustment = dx * overlap / distance;
-                        double yAdjustment = dy * overlap / distance;
+						double xNormal = dx/distance;
+						double yNormal = dy/distance;
 						
-						overlapAdjustment(b1, b2, xAdjustment, yAdjustment);
+						overlapAdjustment(b1, b2, xNormal, yNormal, overlap);
 
-                        // Calculate new velocities using 2D elastic collision physics
-                        resolveCollision(b1, b2);
+						applyVelocity(b1, b2, calculateVelocity(b1, b2, xNormal, yNormal));
 
                         collisionOccurred = true;
                     }
@@ -101,49 +100,47 @@ class Model {
             b1.y += deltaT * b1.vy;
         }
     }
-	void overlapAdjustment(Ball b1, Ball b2, double xAdjustment, double yAdjustment) {
+	void overlapAdjustment(Ball b1, Ball b2, double xNormal, double yNormal, double overlap) {
+		double xAdjustment = xNormal * overlap;
+        double yAdjustment = yNormal * overlap;
+		
 		b1.x -= xAdjustment;
 		b1.y -= yAdjustment;
 		b2.x += xAdjustment;
 		b2.y += yAdjustment;
 	}
-	// Adjust ball positions based on ove
-	// Calculates the new velocity for each ball after collision
-    void resolveCollision(Ball b1, Ball b2) {
-        // Get the vector between the balls
-        double dx = b2.x - b1.x;
-        double dy = b2.y - b1.y;
-        double distance = sqrt(dx * dx + dy * dy);
-
-        // Normal vector (direction of collision)
-        double nx = dx / distance;
-        double ny = dy / distance;
-
+	
+    double[] calculateVelocity(Ball b1, Ball b2, double xNormal, double yNormal) {
         // Tangential vector (perpendicular to the normal)
-        double tx = -ny;
-        double ty = nx;
+        double tx = -yNormal;
+        double ty = xNormal;
 
         // Dot product of velocity along the normal and tangent directions
         double dpTan1 = b1.vx * tx + b1.vy * ty;
         double dpTan2 = b2.vx * tx + b2.vy * ty;
 
-        double dpNorm1 = b1.vx * nx + b1.vy * ny;
-        double dpNorm2 = b2.vx * nx + b2.vy * ny;
+        double dpNorm1 = b1.vx * xNormal + b1.vy * yNormal;
+        double dpNorm2 = b2.vx * xNormal + b2.vy * yNormal;
 
         // Compute new normal velocities after collision (1D elastic collision equations)
         double m1 = (dpNorm1 * (b1.mass - b2.mass) + 2.0 * b2.mass * dpNorm2) / (b1.mass + b2.mass);
         double m2 = (dpNorm2 * (b2.mass - b1.mass) + 2.0 * b1.mass * dpNorm1) / (b1.mass + b2.mass);
 
         // Update velocities along the normal and tangential directions
-        b1.vx = tx * dpTan1 + nx * m1;
-        b1.vy = ty * dpTan1 + ny * m1;
-        b2.vx = tx * dpTan2 + nx * m2;
-        b2.vy = ty * dpTan2 + ny * m2;
+        double b1vx = tx * dpTan1 + xNormal * m1;
+        double b1vy = ty * dpTan1 + yNormal * m1;
+        double b2vx = tx * dpTan2 + xNormal * m2;
+        double b2vy = ty * dpTan2 + yNormal * m2;
+
+		return new double[] {b1vx, b1vy, b2vx, b2vy};
     }
 
 	// Applies velocity to each ball
-	void applyVelocity(Ball b1, Ball b2, double velocity1, double velocity2) {
-
+	void applyVelocity(Ball b1, Ball b2, double[] velocities) {
+		b1.vx = velocities[0];
+        b1.vy = velocities[1];
+		b2.vx = velocities[2];
+		b2.vy = velocities[3];
 	}
 
     /**
