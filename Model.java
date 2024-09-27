@@ -56,8 +56,8 @@ class Model {
 		// Initialize the model with a few balls
 		balls = new Ball[2];
 
-		balls[0] = new Ball(2.5, 2,  1, 0, 0.4, getRandomColor(null));
-		balls[1] = new Ball(3.5, 2, -0.5, 0, 0.2, getRandomColor(null));
+		balls[0] = new Ball(3.5, 0,  0, -2, 0.4, getRandomColor(null));
+		balls[1] = new Ball(3.5, 2, 0, 0.5, 0.2, getRandomColor(null));
 
 	}
 
@@ -73,7 +73,7 @@ class Model {
 			Boolean collisionOccured = false;
 			for (Ball o : balls) {
 				if (b != o) { // Cannot collide with itself
-					if (o.x + o.radius > b.x - b.radius && o.x - o.radius < b.x + b.radius) { // Collision with other ball
+					if (o.x + o.radius > b.x - b.radius && o.x - o.radius < b.x + b.radius && o.y + o.radius > b.y - b.radius && o.y - o.radius < b.y + b.radius) { // Collision along x-axis & y-axis
 						// handle overlap
 						if(b.x<o.x){
 							b.x = o.x - o.radius - b.radius;
@@ -81,16 +81,24 @@ class Model {
 						else if(b.x>o.x){
 							b.x = o.x + o.radius + b.radius;
 						}
+						else if(b.y<o.y){
+							b.y = o.y - o.radius - b.radius;
+						}
+						else if(b.y>o.y){
+							b.y = o.y + o.radius + b.radius;
+						}
 						// apply new velocity
 						b.vx = calculateNewVelocity(b, o)[0];
-						o.vx = calculateNewVelocity(b, o)[1];
+						b.vy = calculateNewVelocity(b, o)[1];
+						o.vx = calculateNewVelocity(b, o)[2];
+						o.vy = calculateNewVelocity(b, o)[3];
 
 						collisionOccured = true;
 						showBackgroundImage = true;
 						frameCounter = 2;
 					}
-
 				}
+
 				// Do something
 				if (frameCounter > 0) {
 					frameCounter--;
@@ -130,11 +138,15 @@ class Model {
 	}
 
 	double[] calculateNewVelocity (Ball b1, Ball b2) {
-		double newVelocityB1;
-		double newVelocityB2;
-		newVelocityB1 = (b1.mass*b1.vx+b2.mass*b2.vx-b2.mass*b1.vx+b2.mass*b2.vx) /(b1.mass+b2.mass);
-		newVelocityB2 = b1.vx-b2.vx+newVelocityB1;
-		double[] newList = {newVelocityB1, newVelocityB2};
+		double newXVelocityB1;
+		double newYVelocityB1;
+		double newXVelocityB2;
+		double newYVelocityB2;
+		newXVelocityB1 = (b1.mass*b1.vx+b2.mass*b2.vx-b2.mass*b1.vx+b2.mass*b2.vx) /(b1.mass+b2.mass);
+		newXVelocityB2 = b1.vx-b2.vx+newXVelocityB1;
+		newYVelocityB1 = (b1.mass*b1.vy+b2.mass*b2.vy-b2.mass*b1.vy+b2.mass*b2.vy) /(b1.mass+b2.mass);
+		newYVelocityB2 = b1.vy-b2.vy+newYVelocityB1;
+		double[] newList = {newXVelocityB1, newYVelocityB1, newXVelocityB2, newYVelocityB2};
 		return newList;
 	}
 
