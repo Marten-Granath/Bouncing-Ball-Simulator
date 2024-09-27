@@ -56,8 +56,8 @@ class Model {
 		// Initialize the model with a few balls
 		balls = new Ball[2];
 
-		balls[0] = new Ball(3.5, 0,  0, -2, 0.4, getRandomColor(null));
-		balls[1] = new Ball(3.5, 2, 0, 0.5, 0.2, getRandomColor(null));
+		balls[0] = new Ball(3, 2,  0.5, -0.5, 0.4, getRandomColor(null));
+		balls[1] = new Ball(10, 0.5, -0.5, 0.5, 0.2, getRandomColor(null));
 
 	}
 
@@ -109,6 +109,14 @@ class Model {
 
 			// detect collision with the border
 			if (b.x < b.radius || b.x > areaWidth - b.radius) {
+				// unstick from border left
+				if (b.x < b.radius) {
+					b.x = b.radius;
+				}
+				// unstick from border right
+				if (b.x > areaWidth - b.radius) {
+					b.x = areaWidth - b.radius;
+				}
 				b.vx *= -1; 
 				collisionOccured = true;
 			}

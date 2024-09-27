@@ -24,6 +24,7 @@ import bouncing_balls.Model.Ball;
  * @author Simon Robillard
  *
  */
+
 @SuppressWarnings("serial")
 public final class Animator extends JPanel implements ActionListener {
 
