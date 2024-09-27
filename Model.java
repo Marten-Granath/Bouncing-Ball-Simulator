@@ -165,10 +165,10 @@ class Model {
 	double[] calculateNewVelocity (Ball b1, Ball b2) {
 		double newVelocityB1;
 		double newVelocityB2;
-		newVelocityB1 = (b1.mass*b2.vx + b2.mass*b2.vx + b2.mass*b1.vx - b1.mass*b1.vx)/(2*b2.mass);
-		newVelocityB2 = b2.vx-newVelocityB1+b1.vx;
-		//vxNewB = -(o.mass * o.vx - b.mass * b.vx - b.mass * o.vx + b.mass * b.vx)/b.mass;
-		//vxNewO = o.vx-(vxNewB - b.vx);
+		newVelocityB1 = (b1.mass*b1.vx+b2.mass*b2.vx-b2.mass*b1.vx+b2.mass*b2.vx) /(b1.mass+b2.mass);
+		newVelocityB2 = b1.vx-b2.vx+newVelocityB1;
+		//newVelocityB1 = (b1.mass*b2.vx + b2.mass*b2.vx + b2.mass*b1.vx - b1.mass*b1.vx)/(2*b2.mass);
+		//newVelocityB2 = b2.vx-newVelocityB1+b1.vx;
 		double[] newList = {newVelocityB1, newVelocityB2};
 		return newList;
 	}
