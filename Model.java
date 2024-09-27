@@ -1,174 +1,159 @@
 package bouncing_balls;
+
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Random;
 import static java.lang.Math.*;
 
-/**
- * The physics model.
- * 
- * This class is where you should implement your bouncing balls model.
- * 
- * The code has intentionally been kept as simple as possible, but if you wish, you can improve the design.
- * 
- * @author Simon Robillard
- *
- */
-
 class Model {
 
-	double areaWidth, areaHeight;
-	double gravity = -9.81;
-	Ball [] balls;
+    double areaWidth, areaHeight;
+    double gravity = -5;
+    Ball[] balls;
 
-	Random random = new Random();
+    Random random = new Random();
 
-	//Array of neon colors
-	private Color[] neonColors = {
-			new Color(57, 255, 20),   // Neon green
-			new Color(255, 20, 147),  // Neon pink
-			new Color(77, 77, 255),   // Neon blue
-			new Color(255, 165, 0),   // Neon orange
-			new Color(0, 255, 255),   // Neon cyan
-			new Color(255, 255, 0),   // Neon yellow
-			new Color(191, 0, 255),   // Neon purple
-			new Color(255, 0, 0),     // Neon red
-			new Color(255, 0, 255),   // Neon magenta
-			new Color(191, 255, 0),   // Neon lime
-			new Color(125, 249, 255), // Electric blue
-			new Color(255, 69, 0)     // Neon orange-red
-	};
-	
-	// Returns a random color from the neonColors array that is different from the current color
-	private Color getRandomColor(Color currentColor){
-		Color newColor;
-		do {
-			newColor = neonColors[random.nextInt(neonColors.length)];
-		} while (newColor.equals(currentColor)); // Ensure new color is different from the current one
-		return newColor;
-	}
+    // Array of neon colors
+    private Color[] neonColors = {
+            new Color(57, 255, 20),   // Neon green
+            new Color(255, 20, 147),  // Neon pink
+            new Color(77, 77, 255),   // Neon blue
+            new Color(255, 165, 0),   // Neon orange
+            new Color(0, 255, 255),   // Neon cyan
+            new Color(255, 255, 0),   // Neon yellow
+            new Color(191, 0, 255),   // Neon purple
+            new Color(255, 0, 0),     // Neon red
+            new Color(255, 0, 255),   // Neon magenta
+            new Color(191, 255, 0),   // Neon lime
+            new Color(125, 249, 255), // Electric blue
+            new Color(255, 69, 0)     // Neon orange-red
+    };
 
-	Model(double width, double height) {
-		areaWidth = width;
-		areaHeight = height;
-		
-		// Initialize the model with a few balls
-		balls = new Ball[2];
+    // Returns a random color from the neonColors array that is different from the current color
+    private Color getRandomColor(Color currentColor) {
+        Color newColor;
+        do {
+            newColor = neonColors[random.nextInt(neonColors.length)];
+        } while (newColor.equals(currentColor)); // Ensure new color is different from the current one
+        return newColor;
+    }
 
-		balls[0] = new Ball(3.5, 0,  0, -2, 0.4, getRandomColor(null));
-		balls[1] = new Ball(3.5, 2, 0, 0.5, 0.2, getRandomColor(null));
+    Model(double width, double height) {
+        areaWidth = width;
+        areaHeight = height;
 
-	}
+        // Initialize the model with a few balls
+        balls = new Ball[2];
 
-	// Add this flag to your Model class
-	boolean showBackgroundImage = false;
-	int frameCounter = 0; // To control how many frames to show the image
+        balls[0] = new Ball(3.5, 0, 0, -2, 0.4, getRandomColor(null));
+        balls[1] = new Ball(3.5, 2, 0.5, 0.5, 0.2, getRandomColor(null));
+    }
 
-	void step(double deltaT) {
+    void step(double deltaT) {
+        for (Ball b : balls) {
+            boolean collisionOccurred = false;
 
-		for (Ball b : balls) {
+            // Handle ball-to-ball collisions
+            for (Ball o : balls) {
+                if (b != o) {
+                    double dx = o.x - b.x;
+                    double dy = o.y - b.y;
+                    double distance = sqrt(dx * dx + dy * dy);
 
-			// detect collision between balls
-			Boolean collisionOccured = false;
-			for (Ball o : balls) {
-				if (b != o) { // Cannot collide with itself
-					if (o.x + o.radius > b.x - b.radius && o.x - o.radius < b.x + b.radius && o.y + o.radius > b.y - b.radius && o.y - o.radius < b.y + b.radius) { // Collision along x-axis & y-axis
-						// handle overlap
-						if(b.x<o.x){
-							b.x = o.x - o.radius - b.radius;
-						}
-						else if(b.x>o.x){
-							b.x = o.x + o.radius + b.radius;
-						}
-						else if(b.y<o.y){
-							b.y = o.y - o.radius - b.radius;
-						}
-						else if(b.y>o.y){
-							b.y = o.y + o.radius + b.radius;
-						}
-						// apply new velocity
-						b.vx = calculateNewVelocity(b, o)[0];
-						b.vy = calculateNewVelocity(b, o)[1];
-						o.vx = calculateNewVelocity(b, o)[2];
-						o.vy = calculateNewVelocity(b, o)[3];
+                    if (distance < b.radius + o.radius) {
+                        // Adjust positions to prevent overlap
+                        double overlap = (b.radius + o.radius - distance) / 2;
+                        double nx = dx / distance;
+                        double ny = dy / distance;
 
-						collisionOccured = true;
-						showBackgroundImage = true;
-						frameCounter = 2;
-					}
-				}
+                        b.x -= nx * overlap;
+                        b.y -= ny * overlap;
+                        o.x += nx * overlap;
+                        o.y += ny * overlap;
 
-				// Do something
-				if (frameCounter > 0) {
-					frameCounter--;
-				} else {
-					showBackgroundImage = false; // Reset the flag after specified frames
-				}
-			}
+                        // Calculate new velocities using 2D elastic collision physics
+                        resolveCollision(b, o);
 
-			// detect collision with the border
-			if (b.x < b.radius || b.x > areaWidth - b.radius) {
-				b.vx *= -1; 
-				collisionOccured = true;
-			}
-			if (b.y < b.radius || b.y > areaHeight - b.radius) {
-				// unstick from border below
-				if (b.y < b.radius) { 
-					b.y = b.radius;
-				}
-				// unstick from border above
-				if (b.y > areaHeight - b.radius) { 
-					b.y = areaHeight - b.radius;
-				}
-					b.vy *= -1;
-					collisionOccured = true;
-			};
-			
-			// change color of the ball if collision occurred
-			if (collisionOccured){
-				b.color = getRandomColor(null);
-			}
+                        collisionOccurred = true;
+                    }
+                }
+            }
 
-			// compute new position according to the speed of the ball
-			b.x += deltaT * b.vx;
-			//b.vy += deltaT * gravity; // Take gravity into account
-			b.y += deltaT * (b.vy);
-		}
-	}
+            // Detect collision with the walls
+            if (b.x < b.radius || b.x > areaWidth - b.radius) {
+                b.vx *= -1;
+                collisionOccurred = true;
+            }
+            if (b.y < b.radius || b.y > areaHeight - b.radius) {
+                b.vy *= -1;
+                // Unstick from borders
+                if (b.y < b.radius) b.y = b.radius;
+                if (b.y > areaHeight - b.radius) b.y = areaHeight - b.radius;
+                collisionOccurred = true;
+            }
 
-	double[] calculateNewVelocity (Ball b1, Ball b2) {
-		double newXVelocityB1;
-		double newYVelocityB1;
-		double newXVelocityB2;
-		double newYVelocityB2;
-		newXVelocityB1 = (b1.mass*b1.vx+b2.mass*b2.vx-b2.mass*b1.vx+b2.mass*b2.vx) /(b1.mass+b2.mass);
-		newXVelocityB2 = b1.vx-b2.vx+newXVelocityB1;
-		newYVelocityB1 = (b1.mass*b1.vy+b2.mass*b2.vy-b2.mass*b1.vy+b2.mass*b2.vy) /(b1.mass+b2.mass);
-		newYVelocityB2 = b1.vy-b2.vy+newYVelocityB1;
-		double[] newList = {newXVelocityB1, newYVelocityB1, newXVelocityB2, newYVelocityB2};
-		return newList;
-	}
+            // Change color of the ball if collision occurred
+            if (collisionOccurred) {
+                b.color = getRandomColor(b.color);
+            }
 
-	/**
-	 * Simple inner class describing balls.
-	 */
-	class Ball {
-		double density = 10;
-		Color color;
-		Ball(double x, double y, double vx, double vy, double r, Color color) {
-			this.x = x;
-			this.y = y;
-			this.vx = vx;
-			this.vy = vy;
-			this.radius = r;
-			this.color = color;
-			this.mass = density * PI * Math.pow(r, 2);
-		}
+            // Apply gravity
+            b.vy += deltaT * gravity;
 
-		/**
-		 * Position, speed, radius and mass of the ball.
-		 */
-		double x, y, vx, vy, radius, mass;
-	}
+            // Update position
+            b.x += deltaT * b.vx;
+            b.y += deltaT * b.vy;
+        }
+    }
+
+    // Function to resolve collisions between two balls using 2D elastic collision physics
+    void resolveCollision(Ball b1, Ball b2) {
+        // Get the vector between the balls
+        double dx = b2.x - b1.x;
+        double dy = b2.y - b1.y;
+        double distance = sqrt(dx * dx + dy * dy);
+
+        // Normal vector (direction of collision)
+        double nx = dx / distance;
+        double ny = dy / distance;
+
+        // Tangential vector (perpendicular to the normal)
+        double tx = -ny;
+        double ty = nx;
+
+        // Dot product of velocity along the normal and tangent directions
+        double dpTan1 = b1.vx * tx + b1.vy * ty;
+        double dpTan2 = b2.vx * tx + b2.vy * ty;
+
+        double dpNorm1 = b1.vx * nx + b1.vy * ny;
+        double dpNorm2 = b2.vx * nx + b2.vy * ny;
+
+        // Compute new normal velocities after collision (1D elastic collision equations)
+        double m1 = (dpNorm1 * (b1.mass - b2.mass) + 2.0 * b2.mass * dpNorm2) / (b1.mass + b2.mass);
+        double m2 = (dpNorm2 * (b2.mass - b1.mass) + 2.0 * b1.mass * dpNorm1) / (b1.mass + b2.mass);
+
+        // Update velocities along the normal and tangential directions
+        b1.vx = tx * dpTan1 + nx * m1;
+        b1.vy = ty * dpTan1 + ny * m1;
+        b2.vx = tx * dpTan2 + nx * m2;
+        b2.vy = ty * dpTan2 + ny * m2;
+    }
+
+    /**
+     * Simple inner class describing balls.
+     */
+    class Ball {
+        double density = 10;
+        Color color;
+        double x, y, vx, vy, radius, mass;
+
+        Ball(double x, double y, double vx, double vy, double r, Color color) {
+            this.x = x;
+            this.y = y;
+            this.vx = vx;
+            this.vy = vy;
+            this.radius = r;
+            this.color = color;
+            this.mass = density * PI * pow(r, 2);
+        }
+    }
 }

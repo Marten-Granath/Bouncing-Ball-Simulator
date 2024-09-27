@@ -27,7 +27,6 @@ import bouncing_balls.Model.Ball;
 @SuppressWarnings("serial")
 public final class Animator extends JPanel implements ActionListener {
 
-	private Image backgroundImage;
 	public Animator(int pixelWidth, int pixelHeight, int fps) {
 		super(true);
 		this.timer = new Timer(1000 / fps, this);
@@ -35,13 +34,6 @@ public final class Animator extends JPanel implements ActionListener {
 		this.model = new Model(pixelWidth / pixelsPerMeter, pixelHeight / pixelsPerMeter);
 		this.setOpaque(false);
 		this.setPreferredSize(new Dimension(pixelWidth, pixelHeight));
-
-		// Load background image
-		try {
-			backgroundImage = ImageIO.read(new File("radams.png")); // Update the path to your image
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -75,15 +67,10 @@ public final class Animator extends JPanel implements ActionListener {
 	@Override
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
-
-		// Draw the background image if the flag is set
-		if (model.showBackgroundImage) {
-			g2.drawImage(backgroundImage, 0, 0, this);
-		} else {
-			// Clear the canvas
-			g2.setColor(Color.BLACK);
-			g2.fillRect(0, 0, this.getWidth(), this.getHeight());
-		}
+		// Clear the canvas
+		g2.setColor(Color.BLACK);
+		g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+	
 
 		// draw balls
 		for (Ball b : model.balls) {
