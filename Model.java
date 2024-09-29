@@ -68,7 +68,7 @@ class Model {
 
 				// Ball cannot move past horizontal borders
 				if (b1.x < b1.radius) b1.x = b1.radius;
-				if (b1.x > areaWidth - b1.radius) b1.x = areaHeight - b1.radius;
+				if (b1.x > areaWidth - b1.radius) b1.x = areaWidth - b1.radius;
 
 				// Set new colour
                 colourSetter.setColour(b1);
